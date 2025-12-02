@@ -6,7 +6,7 @@ public class Secret_Entrance {
   public static void main(String[] args) {
     try {
 
-      Scanner scanner = new Scanner(new File("input.txt"));
+      Scanner scanner = new Scanner(new File("example1.txt"));
 
       int position = 50;
       int result = 0;
