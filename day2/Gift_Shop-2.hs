@@ -34,21 +34,20 @@ checkRange a b =
     0
     [a .. b]
 
-splitIn2 :: Char -> String -> (String, String)
-splitIn2 c s =
-  let x : xs = split c s
-   in (x, last xs)
-
 checkRanges :: [String] -> Int
 checkRanges =
-  foldl
-    ( \acc range ->
-        let (aStr, bStr) = splitIn2 '-' range
-            a = read aStr :: Int
-            b = read bStr :: Int
-         in acc + checkRange a b
-    )
-    0
+  let splitIn2 :: Char -> String -> (String, String)
+      splitIn2 c s =
+        let x : xs = split c s
+         in (x, last xs)
+   in foldl
+        ( \acc range ->
+            let (aStr, bStr) = splitIn2 '-' range
+                a = read aStr :: Int
+                b = read bStr :: Int
+             in acc + checkRange a b
+        )
+        0
 
 main :: IO ()
 main = do
