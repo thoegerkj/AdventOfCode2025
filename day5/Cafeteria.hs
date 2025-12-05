@@ -1,5 +1,3 @@
-import Data.Set (Set, empty, fromList, insert, member)
-
 splitAtEmptyLine :: [String] -> ([String], [String])
 splitAtEmptyLine s = sael s []
   where
@@ -15,36 +13,25 @@ splitAtDash s = go s []
     go ('-' : t) acc = (read (reverse acc), read t)
     go (h : t) acc = go t (h : acc)
 
-buildSet :: [String] -> Set Int
-buildSet strings =
-  foldl
-    ( \acc1 s ->
-        let (n1, n2) = splitAtDash s
-         in foldl
-              ( \acc2 n ->
-                  insert n acc2
-              )
-              acc1
-              [n1 .. n2]
-    )
-    empty
-    strings
+countIDs :: [String] -> [String] -> Int
+countIDs ids ranges = sum $ map (rangesContain ranges . read) ids
 
-countIDs :: [String] -> Set Int -> Int
-countIDs s c =
-  foldl
-    ( \res s ->
-        if member (read s) c
-          then res + 1
-          else res
-    )
-    0
-    s
+rangesContain :: [String] -> Int -> Int
+rangesContain [] id = 0
+rangesContain (r : rest) id
+  | rangeContain r id = 1
+  | otherwise = rangesContain rest id
+
+rangeContain :: String -> Int -> Bool
+rangeContain r n =
+  let (n1, n2) = splitAtDash r
+      aboveLower = n1 <= n
+      belowHigher = n <= n2
+   in aboveLower && belowHigher
 
 main :: IO ()
 main = do
-  contents <- readFile "example.txt"
+  contents <- readFile "input.txt"
   let (ranges, ids) = splitAtEmptyLine $ lines contents
-      rangeset = buildSet ranges
-      freshIdC = countIDs ids rangeset
+      freshIdC = countIDs ids ranges
   print freshIdC
