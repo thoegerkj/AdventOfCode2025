@@ -1,0 +1,76 @@
+simulate :: [String] -> (Int, [String])
+simulate grid =
+  foldl
+    ( \(res, cgrid) n ->
+        let (rres, ngrid) = step cgrid n
+         in (rres + res, ngrid)
+    )
+    (0, grid)
+    [1 .. length grid - 1]
+
+step :: [String] -> Int -> (Int, [String])
+step grid row =
+  let is = findAll '|' (grid !! row) 0
+   in foldl
+        ( \(res, grid) i ->
+            let (ngrid, sp) = change i row grid
+             in (res + sp, ngrid)
+        )
+        (0, grid)
+        is
+
+findAll :: Char -> String -> Int -> [Int]
+findAll c [] acc = []
+findAll c (s : ss) acc
+  | c == s = acc : findAll c ss (acc + 1)
+  | otherwise = findAll c ss (acc + 1)
+
+firstStep :: [String] -> [String]
+firstStep grid =
+  let indexOfS = find 'S' (head grid)
+   in fst $ change indexOfS 1 grid
+
+find :: Char -> String -> Int
+find _ [] = -1
+find c (x : xs)
+  | c == x = 0
+  | otherwise = 1 + find c xs
+
+change :: Int -> Int -> [String] -> ([String], Int)
+change i row grid =
+  let char = grid !! row !! i
+      s = grid !! row
+   in if char == '.'
+        then
+          ( take row grid
+              ++ (take i s ++ '|' : drop (i + 1) s)
+              : drop (row + 1) grid,
+            0
+          )
+        else
+          if char == '^'
+            then
+              ( take row grid
+                  ++ (take (i - 1) s ++ '|' : '^' : '|' : drop (i + 2) s)
+                  : drop (row + 1) grid,
+                1
+              )
+            else (grid, 0)
+
+main :: IO ()
+main = do
+  contents <- readFile "example.txt"
+  let grid = lines contents
+      grid1 = firstStep grid
+      is = findAll '|' (grid1 !! 1)
+      (splits, grid2) = simulate grid1
+
+  mapM_ print grid1
+  print "----------------------------------------------------------"
+  print $ grid1 !! 1
+  print "----------------------------------------------------------"
+  print is
+  print "----------------------------------------------------------"
+  mapM_ print grid2
+  print "----------------------------------------------------------"
+  print splits
